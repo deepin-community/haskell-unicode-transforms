@@ -1,3 +1,30 @@
+## 0.4.0.1 (March 2022)
+
+* Support text-icu == 0.8.* in tests
+* Support unicode-data == 0.3.*
+
+## 0.4.0 (November 2021)
+
+* Bump `unicode-data` to `0.2`
+* Allow `text 2.0`
+* Update to Unicode version 14.0.0
+* Drop support for GHC 7.10
+
+## 0.3.8
+
+* Allow ghc-prim 0.7
+* Extract `unicode-data` into its own package
+* Depend on the latest stable `text`
+
+## 0.3.7.1
+
+* Fix x32 build
+
+## 0.3.7
+
+* Significant performance improvements
+* Update to Unicode version 13.0.0
+
 ## 0.3.6
 
 * Update to Unicode version 12.1.0
