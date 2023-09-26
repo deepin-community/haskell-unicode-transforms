@@ -5,13 +5,14 @@
 -- |
 -- Copyright   : (c) 2016 Harendra Kumar
 --
--- License     : BSD-style
+-- License     : BSD-3-Clause
 -- Maintainer  : harendra.kumar@gmail.com
 -- Stability   : experimental
 -- Portability : GHC
 --
 
 import Control.Monad (when)
+import qualified Data.ByteString as B
 import Data.Char (chr, isSpace, ord, toUpper)
 #if MIN_VERSION_base(4,8,0)
 import Data.Function ((&))
@@ -20,6 +21,7 @@ import Data.List (intercalate, isPrefixOf)
 import Data.List.Split (splitOn)
 import Data.Text (Text)
 import qualified Data.Text as T
+import qualified Data.Text.Encoding as T
 import Data.Text.Normalize (NormalizationMode(NFD, NFKD, NFC, NFKC), normalize)
 import Text.Printf (printf)
 
@@ -109,7 +111,7 @@ checkLine (lineno, line) = do
 
 testNormalize :: FilePath -> IO ()
 testNormalize file = do
-    contents <- readFile file
+    contents <- T.unpack . T.decodeUtf8 <$> B.readFile file
     let ls = lines contents                        -- split into lines
          & map (dropWhile isSpace)                 -- trim leading spaces
          & zip [1..]                               -- add numbering
@@ -122,6 +124,6 @@ testNormalize file = do
 
 main :: IO ()
 main = do
-    testNormalize "unicode-data/ucd/NormalizationTest.txt"
+    testNormalize "test/data/NormalizationTest.txt"
     -- Additional test cases not in the unicode standard suite
-    testNormalize "unicode-data/extra/NormalizationTest.txt"
+    testNormalize "test/data/extra/NormalizationTest.txt"

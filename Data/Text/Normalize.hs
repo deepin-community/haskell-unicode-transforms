@@ -3,7 +3,7 @@
 -- Module      : Data.Text.Normalize
 -- Copyright   : (c) 2016 Harendra Kumar
 --
--- License     : BSD-style
+-- License     : BSD-3-Clause
 -- Maintainer  : harendra.kumar@gmail.com
 -- Stability   : experimental
 -- Portability : GHC
@@ -18,19 +18,23 @@ module Data.Text.Normalize
     , normalize
     ) where
 
-import           Data.Text                             (Text)
-import           Data.Unicode.Internal.NormalizeStream ( DecomposeMode(..)
-                                                       , stream
-                                                       , unstream
-                                                       , unstreamC)
-import           Data.Unicode.Types                    (NormalizationMode (..))
+import Data.Text (Text)
+import Data.Unicode.Types (NormalizationMode(..))
+
+-- Internal modules
+import Data.Unicode.Internal.NormalizeStream
+    ( DecomposeMode(..)
+    , stream
+    , unstream
+    , unstreamC
+    )
 
 -- | Perform Unicode normalization on @Text@ according to the specified
 -- normalization mode.
 normalize :: NormalizationMode -> Text -> Text
 normalize mode =
     case mode of
-      NFD  -> (unstream DecomposeNFD)   . stream
-      NFKD -> (unstream DecomposeNFKD)  . stream
-      NFC  -> (unstreamC DecomposeNFD)  . stream
-      NFKC -> (unstreamC DecomposeNFKD) . stream
+      NFD  -> (unstream Canonical)   . stream
+      NFKD -> (unstream Kompat)  . stream
+      NFC  -> (unstreamC Canonical)  . stream
+      NFKC -> (unstreamC Kompat) . stream
