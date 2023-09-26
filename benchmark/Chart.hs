@@ -7,43 +7,37 @@ module Main where
 import BenchShow
 import Data.List
 
-selectBench :: (SortColumn -> Either String [(String, Double)]) -> [String]
+selectBench
+    :: (SortColumn -> Maybe GroupStyle -> Either String [(String, Double)])
+    -> [String]
 selectBench f =
-    -- reverse
-      fmap fst
-    $ either error (sortOn snd) $ f $ ColumnIndex 0
+      reverse
+    $ fmap fst
+    $ either
+        (const
+            $ either error (sortOn snd)
+            $ f (ColumnIndex 0) (Just PercentDiff))
+        (sortOn snd)
+    $ f (ColumnIndex 1) (Just PercentDiff)
 
 main :: IO ()
 main = do
-    let icu = "Normalize NFD/text-icu/"
-    let utrans = "Normalize NFD/unicode-transforms/"
-
-    let icu1 = "text-icu/NFD/"
-    let utrans1 = "unicode-transforms/NFD/"
-    let utf8proc1 = "utf8proc/NFD/"
-
-    let utrans2 = "unicode-transforms-text/NFD/"
-
     let cfg = defaultConfig
             { classifyBenchmark = \bs ->
-                case stripPrefix icu bs of
+                case stripPrefix "text-icu/" bs of
                     Just x -> Just ("ICU", x)
                     Nothing ->
-                        case stripPrefix icu1 bs of
-                            Just x -> Just ("ICU", x)
-                            Nothing ->
-                                case stripPrefix utrans bs of
-                                    Just x -> Just ("unicode-transforms",x)
-                                    Nothing ->
-                                        case stripPrefix utrans1 bs of
-                                            Just x -> Just ("unicode-transforms",x)
-                                            Nothing ->
-                                                case stripPrefix utrans2 bs of
-                                                    Just x -> Just ("unicode-transforms",x)
-                                                    Nothing ->
-                                                        fmap ("utf8proc",) $ stripPrefix utf8proc1 bs
+                        case stripPrefix "unicode-transforms-text/" bs of
+                            Just x -> Just ("unicode-transforms",x)
+                            Nothing -> error "unknown benchmark"
             , selectBenchmarks = selectBench
-            , presentation = Groups PercentDiff
+            , selectGroups = \gs ->
+                filterGroup "unicode-transforms" gs ++ filterGroup "ICU" gs
+            , presentation = Groups Absolute
             }
     -- graph "results.csv" "unicode-graph" cfg
     report "results.csv" Nothing cfg
+
+    where
+
+    filterGroup grp gs = filter (\(name,_) -> name == grp) gs
